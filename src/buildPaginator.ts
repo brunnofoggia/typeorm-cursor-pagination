@@ -1,50 +1,55 @@
 import { ObjectLiteral, ObjectType } from 'typeorm';
 
-import Paginator, { Order } from './Paginator';
+import _Paginator, { Order } from './Paginator';
 
 export interface PagingQuery {
-  afterCursor?: string;
-  beforeCursor?: string;
-  limit?: number;
-  order?: Order | 'ASC' | 'DESC';
+    afterCursor?: string;
+    beforeCursor?: string;
+    limit?: number;
+    order?: Order | 'ASC' | 'DESC';
 }
 
-export interface PaginationOptions<Entity> {
-  entity: ObjectType<Entity>;
-  alias?: string;
-  query?: PagingQuery;
-  paginationKeys?: Extract<keyof Entity, string>[];
+export interface PaginationOptions<Entity extends ObjectLiteral> {
+    entity: ObjectType<Entity>;
+    alias?: string;
+    query?: PagingQuery;
+    paginationKeys?: Extract<keyof Entity, string>[];
+    Paginator?: typeof _Paginator<Entity>,
+    getMethod?: string;
 }
 
 export function buildPaginator<Entity extends ObjectLiteral>(
-  options: PaginationOptions<Entity>,
-): Paginator<Entity> {
-  const {
-    entity,
-    query = {},
-    alias = entity.name.toLowerCase(),
-    paginationKeys = ['id' as any],
-  } = options;
+    options: PaginationOptions<Entity>,
+): _Paginator<Entity> {
+    const Paginator = options.Paginator || _Paginator;
+    const {
+        entity,
+        query = {},
+        alias = entity.name.toLowerCase(),
+        paginationKeys = ['id' as any],
+    } = options;
 
-  const paginator = new Paginator(entity, paginationKeys);
+    const paginator = new Paginator(entity, paginationKeys);
 
-  paginator.setAlias(alias);
+    if (options.getMethod) paginator.getMethod = options.getMethod;
 
-  if (query.afterCursor) {
-    paginator.setAfterCursor(query.afterCursor);
-  }
+    paginator.setAlias(alias);
 
-  if (query.beforeCursor) {
-    paginator.setBeforeCursor(query.beforeCursor);
-  }
+    if (query.afterCursor) {
+        paginator.setAfterCursor(query.afterCursor);
+    }
 
-  if (query.limit) {
-    paginator.setLimit(query.limit);
-  }
+    if (query.beforeCursor) {
+        paginator.setBeforeCursor(query.beforeCursor);
+    }
 
-  if (query.order) {
-    paginator.setOrder(query.order as Order);
-  }
+    if (query.limit) {
+        paginator.setLimit(query.limit);
+    }
 
-  return paginator;
+    if (query.order) {
+        paginator.setOrder(query.order as Order);
+    }
+
+    return paginator;
 }
