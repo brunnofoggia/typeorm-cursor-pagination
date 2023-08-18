@@ -1,6 +1,6 @@
 {
     "name": "typeorm-cursor-pagination",
-    "version": "0.10.1-rc.2",
+    "version": "0.10.1-rc.3",
     "description": "Cursor-based pagination works with TypeORM.",
     "main": "lib/index.js",
     "scripts": {
@@ -25,6 +25,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/chai": "^4.2.9",
+        "@types/lodash": "^4.14.197",
         "@types/mocha": "^7.0.1",
         "@types/node": "^13.7.7",
         "@typescript-eslint/eslint-plugin": "^2.21.0",
@@ -39,10 +40,10 @@
         "pg": "^8.7.3",
         "rimraf": "^3.0.2",
         "ts-node": "^10.7.0",
-        "typeorm": "^0.3.17",
         "typescript": "^4.9.5"
     },
-    "peerDependencies": {
+    "dependencies": {
+        "lodash": "^4.17.21",
         "typeorm": "^0.3.17"
     }
 }
