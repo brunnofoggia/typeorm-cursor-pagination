@@ -25,7 +25,7 @@ export class PaginatorUtil<Entity extends ObjectLiteral> {
 
     buildOptions(type: DIRECTION, cursor: Cursor | null = null) {
         const options = this.getOptions();
-        if (this.cursor) {
+        if (cursor) {
             const key = `${type}Cursor`;
             // @ts-ignore
             const value = cursor[key];

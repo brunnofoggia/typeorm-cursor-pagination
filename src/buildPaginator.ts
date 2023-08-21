@@ -1,6 +1,7 @@
 import { ObjectLiteral, ObjectType } from 'typeorm';
 
 import _Paginator, { Order } from './Paginator';
+import { PaginatorJoin } from './PaginatorJoin';
 
 export interface PagingQuery {
     afterCursor?: string;
@@ -13,8 +14,8 @@ export interface PaginationOptions<Entity extends ObjectLiteral> {
     entity: ObjectType<Entity>;
     alias?: string;
     query?: PagingQuery;
-    paginationKeys?: Extract<keyof Entity, string>[];
-    Paginator?: typeof _Paginator<Entity>,
+    paginationKeys?: any[];
+    Paginator?: typeof PaginatorJoin<Entity>,
     getMethod?: string;
 }
 
@@ -29,11 +30,13 @@ export function buildPaginator<Entity extends ObjectLiteral>(
         paginationKeys = ['id' as any],
     } = options;
 
-    const paginator = new Paginator(entity, paginationKeys);
+    const paginator = new Paginator(entity);
 
     if (options.getMethod) paginator.getMethod = options.getMethod;
 
     paginator.setAlias(alias);
+
+    paginator.setPaginationKeys(paginationKeys as never[]);
 
     if (query.afterCursor) {
         paginator.setAfterCursor(query.afterCursor);
