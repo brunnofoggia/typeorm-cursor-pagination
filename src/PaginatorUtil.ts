@@ -11,7 +11,7 @@ export enum DIRECTION {
 export class PaginatorUtil<Entity extends ObjectLiteral> {
     private options: PaginationOptions<Entity>;
     private queryBuilder: any;
-    private cursor: Cursor | null = null;
+    private cursors: Cursor | null = null;
     public data: any[] = [];
 
     constructor(options: PaginationOptions<Entity>, queryBuilder: SelectQueryBuilder<Entity>) {
@@ -23,10 +23,22 @@ export class PaginatorUtil<Entity extends ObjectLiteral> {
         return cloneDeep(this.options);
     }
 
+    getCursorKey(type: DIRECTION) {
+        return `${type}Cursor`;
+    }
+
+    getCursors() {
+        return this.cursors;
+    }
+
+    setCursors(cursor: Cursor | null = null) {
+        return this.cursors = cursor;
+    }
+
     buildOptions(type: DIRECTION, cursor: Cursor | null = null) {
         const options = this.getOptions();
         if (cursor) {
-            const key = `${type}Cursor`;
+            const key = this.getCursorKey(type);
             // @ts-ignore
             const value = cursor[key];
 
@@ -41,22 +53,26 @@ export class PaginatorUtil<Entity extends ObjectLiteral> {
     }
 
     buildNextOptions() {
-        return this.buildOptions(DIRECTION.NEXT, this.cursor);
+        return this.buildOptions(DIRECTION.NEXT, this.cursors);
     }
 
     buildPrevOptions() {
-        return this.buildOptions(DIRECTION.PREV, this.cursor);
+        return this.buildOptions(DIRECTION.PREV, this.cursors);
+    }
+
+    buildPaginator(options: PaginationOptions<Entity>) {
+        return buildPaginator({ getMethod: 'getRawMany', ...options });
     }
 
     async goTo(options: PaginationOptions<Entity> | null) {
         if (!options) return this.end();
 
-        const paginator = buildPaginator({ getMethod: 'getRawMany', ...options });
+        const paginator = this.buildPaginator(options);
         // const queryBuilder = this.queryBuilderFn();
         const queryBuilder = this.queryBuilder;
         const { data, cursor } = await paginator.paginate(queryBuilder);
 
-        this.cursor = cursor;
+        this.cursors = cursor;
         this.data = data;
         return { data, cursor };
     }
@@ -65,6 +81,30 @@ export class PaginatorUtil<Entity extends ObjectLiteral> {
         const data: any[] = [];
         this.data = data;
         return { data };
+    }
+
+    setCursorByEntity(entity: Entity, type: DIRECTION = DIRECTION.NEXT) {
+        const paginator = this.buildPaginator(this.getOptions());
+        const cursor = paginator.encode(entity);
+
+        return this.setCursorByDirection(cursor, type);
+    }
+
+    setCursorByDirection(cursor: string, type: DIRECTION = DIRECTION.NEXT) {
+        const cursors: any = {};
+        cursors[this.getCursorKey(type)] = cursor;
+
+        return this.setCursors(cursors);
+    }
+
+    decodeCursor(cursor: string) {
+        const paginator = this.buildPaginator(this.getOptions());
+        return paginator.decode(cursor);
+    }
+
+    encodeCursor(entity: Entity) {
+        const paginator = this.buildPaginator(this.getOptions());
+        return paginator.encode(entity);
     }
 
     async next() {

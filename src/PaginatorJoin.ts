@@ -52,7 +52,7 @@ export class PaginatorJoin<Entity extends ObjectLiteral> extends Paginator<Entit
         return orderByCondition;
     }
 
-    protected encode(entity: Entity): string {
+    encode(entity: Entity): string {
         const payload = this.paginationKeysConfig
             .map((config: PaginationKeyConfig<Entity>) => {
                 const type = config.type;
@@ -66,7 +66,7 @@ export class PaginatorJoin<Entity extends ObjectLiteral> extends Paginator<Entit
         return btoa(payload);
     }
 
-    protected decode(cursor: string): CursorParam {
+    decode(cursor: string): CursorParam {
         const cursors: CursorParam = {};
         const columns = atob(cursor).split(',');
         columns.forEach((column) => {

@@ -15,7 +15,7 @@ export interface PaginationOptions<Entity extends ObjectLiteral> {
     alias?: string;
     query?: PagingQuery;
     paginationKeys?: any[];
-    Paginator?: typeof PaginatorJoin<Entity>,
+    Paginator?: typeof PaginatorJoin<Entity>;
     getMethod?: string;
 }
 

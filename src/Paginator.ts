@@ -185,7 +185,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
         return this.beforeCursor !== null;
     }
 
-    protected encode(entity: Entity): string {
+    encode(entity: Entity): string {
         const payload = this.paginationKeys
             .map((key) => {
                 const type = this.getEntityPropertyType(key);
@@ -197,7 +197,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
         return btoa(payload);
     }
 
-    protected decode(cursor: string): CursorParam {
+    decode(cursor: string): CursorParam {
         const cursors: CursorParam = {};
         const columns = atob(cursor).split(',');
         columns.forEach((column) => {
